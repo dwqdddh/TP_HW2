@@ -31,7 +31,7 @@ class Recipe:
     def __init__(self, title, ingredients=None):
         self.title = title
         self.ingredients = []
-        if ingredients!=None:
+        if ingredients is not None:
             for i in ingredients:
                 self.add_ingredient(i)
                 
@@ -64,4 +64,42 @@ class Recipe:
 
     def __len__(self):
         return len(self.ingredients)
+
+
+class ShoppingList:
+    def __init__(self):
+        self._items = []
+            
+    def add_recipe(self, recipe: Recipe, portions: float):
+        if portions<=0:
+            raise ValueError("Количество порций должно быть положительным")
+        for i in recipe.scale(portions).ingredients:
+            self._items.append((i, recipe.title))
+
+    def remove_recipe(self, title: str):
+        new = []
+        for i in self._items:
+            if i[1]!=title:
+                new.append(i)
+        self._items = new
+
+    def get_list(self):
+        dictionary = {}
+        for i in self._items:
+            ingredient = i[0]
+            key = (ingredient.name, ingredient.unit)
+            if key in dictionary:
+                dictionary[key]+= ingredient.quantity
+            else:
+                dictionary[key] = ingredient.quantity
+        
+        mas = []
+        for i in dictionary:
+            mas.append(Ingredient(i[0], dictionary[i], i[1]))
+        mas.sort(key=lambda i: i.name)
+        return mas
     
+    def __add__(self, other):
+        new = ShoppingList()
+        new._items = self._items + other._items
+        return new
